@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07152f">
+  <title>Weather AI v5 Ultimate</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="sky"></div>
+  <div id="lottieBg"></div>
+
+  <main class="app">
+    <header class="glass topbar">
+      <div>
+        <div class="eyebrow">WEATHER AI ULTIMATE</div>
+        <h1>Weather AI v5</h1>
+      </div>
+      <div class="header-actions">
+        <button id="installBtn" hidden>📲 설치</button>
+        <button id="soundBtn">🔊 비 소리</button>
+        <button id="notifyBtn">🔔 알림</button>
+        <button id="themeBtn">🌙</button>
+      </div>
+    </header>
+
+    <section class="glass search">
+      <form id="searchForm">
+        <input id="cityInput" placeholder="도시 검색: 서울, 부산, Tokyo..." autocomplete="off">
+        <button>검색</button>
+      </form>
+      <button id="gpsBtn">📍 현재 위치</button>
+      <button id="favBtn">☆ 즐겨찾기</button>
+      <button id="loginBtn">👤 로그인</button>
+      <div id="favorites" class="chips"></div>
+    </section>
+
+    <section class="glass hero">
+      <div>
+        <p id="place" class="place">서울</p>
+        <p id="clock" class="muted">불러오는 중...</p>
+        <div class="temp-row">
+          <span id="temp" class="temp">--°</span>
+          <div>
+            <div id="icon" class="big-icon">⛅</div>
+            <strong id="desc">날씨 확인 중</strong>
+            <p id="feels" class="muted">체감 --°</p>
+          </div>
+        </div>
+      </div>
+      <div class="briefing">
+        <h3>🤖 AI 날씨 브리핑</h3>
+        <p id="briefingText">데이터를 분석하고 있습니다.</p>
+        <button id="aiBtn">GPT 브리핑 새로 만들기</button>
+      </div>
+    </section>
+
+    <section class="metrics">
+      <article class="glass metric"><span>💧</span><small>습도</small><strong id="humidity">--%</strong></article>
+      <article class="glass metric"><span>💨</span><small>풍속</small><strong id="wind">-- km/h</strong></article>
+      <article class="glass metric"><span>🧭</span><small>기압</small><strong id="pressure">-- hPa</strong></article>
+      <article class="glass metric"><span>☀️</span><small>UV</small><strong id="uv">--</strong></article>
+      <article class="glass metric"><span>🌅</span><small>일출</small><strong id="sunrise">--:--</strong></article>
+      <article class="glass metric"><span>🌇</span><small>일몰</small><strong id="sunset">--:--</strong></article>
+    </section>
+
+    <section class="grid2">
+      <article class="glass panel">
+        <div class="panel-title">
+          <h2>📈 24시간 온도 차트</h2>
+          <span id="rainSoon">강수 분석 중</span>
+        </div>
+        <canvas id="tempChart"></canvas>
+      </article>
+
+      <article class="glass panel alerts-panel">
+        <div class="panel-title"><h2>⚠️ 기상특보</h2><span>자동 위험 분석</span></div>
+        <div id="alerts" class="alert-list"></div>
+      </article>
+    </section>
+
+    <section class="glass panel">
+      <div class="panel-title">
+        <h2>🗺️ 실시간 레이더 지도</h2>
+        <div class="radar-controls">
+          <button id="radarPlay">▶ 재생</button>
+          <span id="radarTime">레이더 준비 중</span>
+        </div>
+      </div>
+      <div id="radarMap"></div>
+    </section>
+
+    <section class="grid2">
+      <article class="glass panel">
+        <div class="panel-title"><h2>🌪️ 전 세계 태풍 정보</h2><button id="cycloneRefresh">새로고침</button></div>
+        <div id="cyclones" class="cyclones">정보를 불러오는 중...</div>
+      </article>
+
+      <article class="glass panel">
+        <div class="panel-title"><h2>🌍 3D 지구</h2><span>드래그 · 확대 가능</span></div>
+        <div id="globe"></div>
+      </article>
+    </section>
+
+    <section class="glass panel">
+      <div class="panel-title"><h2>시간별 예보</h2><span>24시간</span></div>
+      <div id="hourly" class="hourly"></div>
+    </section>
+
+    <section class="glass panel">
+      <div class="panel-title"><h2>7일 예보</h2><span>최저 / 최고</span></div>
+      <div id="daily" class="daily"></div>
+    </section>
+
+    <section class="glass panel account-panel">
+      <div>
+        <h2>⭐ 로그인 및 즐겨찾기 동기화</h2>
+        <p id="accountStatus" class="muted">Firebase 설정 전에는 이 브라우저에만 저장됩니다.</p>
+      </div>
+      <div class="account-actions">
+        <button id="googleLogin">Google 로그인</button>
+        <button id="logoutBtn">로그아웃</button>
+      </div>
+    </section>
+
+    <div id="toast" class="toast"></div>
+    <footer>Forecast: Open‑Meteo · Radar: RainViewer · Cyclones: GDACS · Map: OpenStreetMap</footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/three@0.160.1/build/three.min.js"></script>
+  <script src="https://unpkg.com/globe.gl@2.33.1/dist/globe.gl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script type="module" src="firebase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
